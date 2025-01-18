@@ -1,0 +1,32 @@
+# Binaries
+*.exe
+*.dll
+*.so
+*.dylib
+*.out
+
+# Build directories
+/build/
+bin/
+
+# Dependency files
+vendor/
+
+# Go test cache
+*.test
+
+# IDE/editor-specific files
+.idea/
+*.vscode/
+*.swp
+*.swo
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Logs and debugging
+*.log
+
+# Git-specific
+.git/
