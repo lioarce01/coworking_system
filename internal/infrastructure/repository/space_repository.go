@@ -1,4 +1,3 @@
-// internal/infrastructure/repository/space_repository.go
 package repository
 
 import (
@@ -9,26 +8,54 @@ import (
 )
 
 type GormSpaceRepository struct {
-    DB *gorm.DB
+	DB *gorm.DB
 }
 
 func NewGormSpaceRepository(db *gorm.DB) ports.SpaceRepository {
-    return &GormSpaceRepository{DB: db}
+	return &GormSpaceRepository{DB: db}
 }
 
-func (r *GormSpaceRepository) ListAvailableSpaces() ([]entity.Space, error) {
-    var spaces []entity.Space
-    result := r.DB.Find(&spaces)
+func (r *GormSpaceRepository) Delete(id uint) error {
+    var space entity.Space
+    result := r.DB.Delete(&space, id)
     if result.Error != nil {
-        return nil, result.Error
+        return result.Error
     }
-    return spaces, nil
+
+    return nil
 }
 
-func (r *GormSpaceRepository) Create(space entity.Space) (entity.Space, error) {
-    result := r.DB.Create(&space)
+func (r *GormSpaceRepository) GetByID(id uint) (entity.Space, error) {
+	var space entity.Space
+
+    result := r.DB.First(&space, id)
+    if result.Error != nil {
+        return space, result.Error
+    }
+    return space, nil
+}
+
+func (r *GormSpaceRepository) Update(space entity.Space) (entity.Space, error) {
+	result := r.DB.Save(&space)
     if result.Error != nil {
         return entity.Space{}, result.Error
     }
     return space, nil
+}
+
+func (r *GormSpaceRepository) ListAvailableSpaces() ([]entity.Space, error) {
+	var spaces []entity.Space
+	result := r.DB.Find(&spaces)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return spaces, nil
+}
+
+func (r *GormSpaceRepository) Create(space entity.Space) (entity.Space, error) {
+	result := r.DB.Create(&space)
+	if result.Error != nil {
+		return entity.Space{}, result.Error
+	}
+	return space, nil
 }
