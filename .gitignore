@@ -23,6 +23,7 @@ vendor/
 
 # OS-specific files
 .DS_Store
+.env
 Thumbs.db
 
 # Logs and debugging

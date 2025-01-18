@@ -1,7 +1,7 @@
 package main
 
 import (
-	"cowork_system/internal/application/usecase"
+	"cowork_system/internal/application/usecase/space"
 	"cowork_system/internal/domain/entity"
 	"cowork_system/internal/infrastructure/repository"
 	"cowork_system/internal/interface/handler"
@@ -37,14 +37,12 @@ func main() {
 		log.Fatalf("Error migrating database: %v", err)
 	}
 
-	// Crear repositorio
-	spaceRepo := repository.NewSpaceRepository(db)
-
-	// Crear caso de uso
-	spaceUsecase := usecase.NewSpaceUsecase(spaceRepo)
+	spaceRepo := repository.NewGormSpaceRepository(db)
+    listSpacesUseCase := space.NewListSpacesUseCase(spaceRepo)
+    createSpaceUseCase := space.NewCreateSpaceUseCase(spaceRepo)
 
 	// Crear handler
-	spaceHandler := handler.NewSpaceHandler(spaceUsecase)
+	spaceHandler := handler.NewSpaceHandler(createSpaceUseCase, listSpacesUseCase)
 
 	// Crear servidor Gin
 	r := gin.Default()
