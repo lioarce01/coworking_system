@@ -3,7 +3,6 @@ package handler
 import (
 	"cowork_system/internal/application/usecase/space"
 	"cowork_system/internal/domain/entity"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -90,8 +89,6 @@ func (h *SpaceHandler) DeleteSpace(c *gin.Context) {
         c.JSON(http.StatusBadRequest, gin.H{"error": "ID is required"})
         return
     }
-
-    fmt.Println("Received ID:", id)
 
     if _, err := uuid.Parse(id); err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid UUID format"})
