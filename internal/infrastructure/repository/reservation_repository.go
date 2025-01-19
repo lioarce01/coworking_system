@@ -56,7 +56,7 @@ func (r *GormReservationRepository) Delete(id string) error {
 
 func (r *GormReservationRepository) GetAll() ([]entity.Reservation, error) {
 	var reservations []entity.Reservation
-	result := r.DB.Find(&reservations)
+	result := r.DB.Preload("Space").Preload("User").Find(&reservations)
 	if result.Error != nil {
 		return nil, result.Error
 	}
