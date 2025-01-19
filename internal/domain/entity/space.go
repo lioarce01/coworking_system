@@ -7,7 +7,7 @@ type Space struct {
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	Capacity    int       `json:"capacity"`
-	IsAvailable bool      `json:"is_available"`
+	IsAvailable bool      `json:"is_available" gorm:"default:true"`
 	Price       float64   `json:"price"`
 	Location    string    `json:"location"`
 	CreatedAt   time.Time `json:"created_at" gorm:"autoCreateTime"`
