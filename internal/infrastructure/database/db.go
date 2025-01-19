@@ -25,13 +25,15 @@ func NewDBConnection() (*gorm.DB, error) {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=5432 sslmode=require TimeZone=Asia/Shanghai", host, user, password, dbName)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		return nil, fmt.Errorf("error al conectar a la base de datos: %v", err)
+		return nil, fmt.Errorf("error connecting to database: %v", err)
 	}
 
 	err = db.AutoMigrate(&entity.Space{})
 	if err != nil {
-		return nil, fmt.Errorf("error migrando la base de datos: %v", err)
+		return nil, fmt.Errorf("error migrating database: %v", err)
 	}
+
+	log.Println("Migration completed successfully!")
 
 	return db, nil
 }

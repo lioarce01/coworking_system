@@ -1,7 +1,7 @@
 package entity
 
 type Space struct {
-	ID          uint   `json:"id" gorm:"primaryKey"`
+	ID          string `json:"id" gorm:"type:uuid;primaryKey"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Location    string `json:"location"`

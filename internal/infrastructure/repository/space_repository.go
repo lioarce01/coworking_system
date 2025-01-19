@@ -15,9 +15,9 @@ func NewGormSpaceRepository(db *gorm.DB) ports.SpaceRepository {
 	return &GormSpaceRepository{DB: db}
 }
 
-func (r *GormSpaceRepository) Delete(id uint) error {
+func (r *GormSpaceRepository) Delete(id string) error {
     var space entity.Space
-    result := r.DB.Delete(&space, id)
+    result := r.DB.Where("id = ?", id).Delete(&space)
     if result.Error != nil {
         return result.Error
     }
@@ -25,15 +25,15 @@ func (r *GormSpaceRepository) Delete(id uint) error {
     return nil
 }
 
-func (r *GormSpaceRepository) GetByID(id uint) (entity.Space, error) {
+func (r *GormSpaceRepository) GetByID(id string) (entity.Space, error) {
 	var space entity.Space
-
-    result := r.DB.First(&space, id)
-    if result.Error != nil {
-        return space, result.Error
-    }
-    return space, nil
+	result := r.DB.Where("id = ?", id).First(&space)
+	if result.Error != nil {
+		return entity.Space{}, result.Error
+	}
+	return space, nil
 }
+
 
 func (r *GormSpaceRepository) Update(space entity.Space) (entity.Space, error) {
 	result := r.DB.Save(&space)

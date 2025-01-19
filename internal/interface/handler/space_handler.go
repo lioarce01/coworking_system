@@ -3,10 +3,11 @@ package handler
 import (
 	"cowork_system/internal/application/usecase/space"
 	"cowork_system/internal/domain/entity"
+	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type SpaceHandler struct {
@@ -57,13 +58,9 @@ func (h *SpaceHandler) CreateSpace(c *gin.Context) {
 }
 
 func (h *SpaceHandler) GetSpaceByID(c *gin.Context) {
-    idStr := c.Param("id")
-    id, err := strconv.ParseUint(idStr, 10, 32)
-    if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ID format"})
-        return
-    }
-    space, err := h.GetByIDUseCase.Execute(uint(id))
+    id := c.Param("id")
+    
+    space, err := h.GetByIDUseCase.Execute(id)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
@@ -73,17 +70,13 @@ func (h *SpaceHandler) GetSpaceByID(c *gin.Context) {
 
 func (h *SpaceHandler) UpdateSpace(c *gin.Context) {
     var space entity.Space
-    idStr := c.Param("id")
-    id, err := strconv.ParseUint(idStr, 10, 32)
-    if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ID format"})
-        return
-    }
+    id := c.Param("id")
+    
     if err := c.ShouldBindJSON(&space); err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
-    updatedSpace, err := h.UpdateSpaceUseCase.Execute(uint(id), space)
+    updatedSpace, err := h.UpdateSpaceUseCase.Execute(id, space)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
@@ -92,18 +85,24 @@ func (h *SpaceHandler) UpdateSpace(c *gin.Context) {
 }
 
 func (h *SpaceHandler) DeleteSpace(c *gin.Context) {
-    idStr := c.Param("id")
-    id, err := strconv.ParseUint(idStr, 10, 32)
-    if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ID format"})
-        return 
+    id := c.Param("id") 
+    if id == "" {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "ID is required"})
+        return
     }
 
-    err = h.DeleteSpaceUseCase.Execute(uint(id)) 
+    fmt.Println("Received ID:", id)
+
+    if _, err := uuid.Parse(id); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid UUID format"})
+        return
+    }
+
+    err := h.DeleteSpaceUseCase.Execute(id)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-        return 
+        return
     }
 
-    c.JSON(http.StatusOK, gin.H{"message": "space deleted successfully"})
+    c.JSON(http.StatusOK, gin.H{"message": "Space deleted successfully"})
 }

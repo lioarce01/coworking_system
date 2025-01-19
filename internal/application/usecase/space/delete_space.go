@@ -13,13 +13,12 @@ func NewDeleteSpaceUseCase(repo ports.SpaceRepository) *DeleteSpaceUseCase {
 	return &DeleteSpaceUseCase{SpaceRepo: repo}
 }
 
-func (uc *DeleteSpaceUseCase) Execute(id uint) error {
-	
+func (uc *DeleteSpaceUseCase) Execute(id string) error {
 	space, err := uc.SpaceRepo.GetByID(id)
 	if err != nil {
 		return err
 	}
-	if space.ID == 0 {
+	if space.ID == "" {
 		return errors.New("space not found")
 	}
 

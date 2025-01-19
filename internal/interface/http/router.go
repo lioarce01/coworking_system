@@ -17,14 +17,17 @@ func SetupRouter() *gin.Engine {
 		panic("Error connecting to the database: " + err.Error())
 	}
 
+	//create repositories of each entity
 	spaceRepo := repository.NewGormSpaceRepository(db)
 
+	//create use cases of each entity
 	listSpacesUseCase := space.NewListSpacesUseCase(spaceRepo)
 	createSpaceUseCase := space.NewCreateSpaceUseCase(spaceRepo)
 	getSpaceByIDUseCase := space.NewGetSpaceUseCase(spaceRepo)
 	updateSpaceUseCase := space.NewUpdateSpaceUseCase(spaceRepo)
 	deleteSpaceUseCase := space.NewDeleteSpaceUseCase(spaceRepo)
 
+	//create handler of each entity
 	spaceHandler := handler.NewSpaceHandler(
 		createSpaceUseCase,
 		listSpacesUseCase,
@@ -33,6 +36,7 @@ func SetupRouter() *gin.Engine {
 		deleteSpaceUseCase,
 	)
 
+	//create routes of each entity
 	spaceRoutes := r.Group("/spaces")
 	{
 		spaceRoutes.GET("/", spaceHandler.GetSpaces)          
