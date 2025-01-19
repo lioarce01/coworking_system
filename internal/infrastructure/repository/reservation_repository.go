@@ -3,6 +3,8 @@ package repository
 import (
 	"cowork_system/internal/application/ports"
 	"cowork_system/internal/domain/entity"
+	"cowork_system/internal/utils"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -15,7 +17,12 @@ func NewGormReservationRepository(db *gorm.DB) ports.ReservationRepository {
 	return &GormReservationRepository{DB: db}
 }
 
+
 func (r *GormReservationRepository) Create(reservation entity.Reservation) (entity.Reservation, error) {
+    if reservation.ID == "" {
+        reservation.ID = utils.GenerateUUID()
+    }
+
     result := r.DB.Create(&reservation)
     if result.Error != nil {
         return entity.Reservation{}, result.Error
@@ -29,7 +36,6 @@ func (r *GormReservationRepository) Create(reservation entity.Reservation) (enti
 
     return reservationWithDetails, nil
 }
-
 
 func (r *GormReservationRepository) Update(reservation entity.Reservation) (entity.Reservation, error) {
 	result := r.DB.Updates(&reservation)
@@ -93,4 +99,13 @@ func (r *GormReservationRepository) CountActiveBySpace(spaceID string) (int, err
         return 0, result.Error
     }
     return int(count), nil
+}
+
+func (r *GormReservationRepository) GetBySpaceAndTime(spaceID string, startTime, endTime time.Time) ([]entity.Reservation, error) {
+    var reservations []entity.Reservation
+    result := r.DB.Where("space_id = ? AND ((start_time BETWEEN ? AND ?) OR (end_time BETWEEN ? AND ?))", spaceID, startTime, endTime, startTime, endTime).Find(&reservations)
+    if result.Error != nil {
+        return nil, result.Error
+    }
+    return reservations, nil
 }

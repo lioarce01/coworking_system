@@ -1,6 +1,9 @@
 package ports
 
-import "cowork_system/internal/domain/entity"
+import (
+	"cowork_system/internal/domain/entity"
+	"time"
+)
 
 type ReservationRepository interface {
 	GetAll() ([]entity.Reservation, error)
@@ -11,4 +14,5 @@ type ReservationRepository interface {
 	Update(reservation entity.Reservation) (entity.Reservation, error)
 	Delete(id string) error
 	CountActiveBySpace(spaceID string) (int, error)
+	GetBySpaceAndTime(spaceID string, startTime time.Time, endTime time.Time) ([]entity.Reservation, error)
 }

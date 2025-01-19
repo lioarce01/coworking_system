@@ -41,14 +41,12 @@ func (r *GormSpaceRepository) GetByID(id string) (entity.Space, error) {
 	return space, nil
 }
 
-
-
 func (r *GormSpaceRepository) Update(space entity.Space) (entity.Space, error) {
     existingSpace, err := r.GetByID(space.ID)
     if err != nil {
-        return entity.Space{}, err 
+        return entity.Space{}, err
     }
-
+	
     result := r.DB.Model(&existingSpace).Updates(entity.Space{
         Name:        space.Name,
         Description: space.Description,
@@ -63,8 +61,6 @@ func (r *GormSpaceRepository) Update(space entity.Space) (entity.Space, error) {
 
     return existingSpace, nil
 }
-
-
 
 func (r *GormSpaceRepository) ListAvailableSpaces() ([]entity.Space, error) {
 	var spaces []entity.Space

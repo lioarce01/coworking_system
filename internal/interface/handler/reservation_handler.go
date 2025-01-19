@@ -85,7 +85,13 @@ func (h *ReservationHandler) CreateReservation(c *gin.Context) {
 		return
 	}
 
-	createdReservation, err := h.CreateReservationUseCase.Execute(reservation)
+	createdReservation, err := h.CreateReservationUseCase.Execute(
+		reservation.SpaceID,
+		reservation.UserID,
+		reservation.StartTime,
+		reservation.EndTime,
+		reservation.NumPersons,
+	)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -93,6 +99,7 @@ func (h *ReservationHandler) CreateReservation(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, createdReservation)
 }
+
 
 func (h *ReservationHandler) UpdateReservation(c *gin.Context) {
 	id := c.Param("id")
