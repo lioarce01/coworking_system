@@ -28,12 +28,19 @@ func (r *GormSpaceRepository) Delete(id string) error {
 
 func (r *GormSpaceRepository) GetByID(id string) (entity.Space, error) {
 	var space entity.Space
-	result := r.DB.Where("id = ?", id).First(&space)
+	result := r.DB.
+		Preload("Reservations.User").
+		Preload("Reservations.Space").
+		Where("id = ?", id).
+		First(&space)
+
 	if result.Error != nil {
 		return entity.Space{}, result.Error
 	}
+
 	return space, nil
 }
+
 
 
 func (r *GormSpaceRepository) Update(space entity.Space) (entity.Space, error) {

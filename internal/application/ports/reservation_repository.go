@@ -10,4 +10,5 @@ type ReservationRepository interface {
 	Create(reservation entity.Reservation) (entity.Reservation, error)
 	Update(reservation entity.Reservation) (entity.Reservation, error)
 	Delete(id string) error
+	CountActiveBySpace(spaceID string) (int, error)
 }

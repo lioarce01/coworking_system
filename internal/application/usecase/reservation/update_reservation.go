@@ -22,56 +22,75 @@ func NewUpdateReservationUseCase(userRepo ports.UserRepository, spaceRepo ports.
 }
 
 func (uc *UpdateReservationUseCase) Execute(id string, updatedFields entity.Reservation) (entity.Reservation, error) {
-	existingReservation, err := uc.ReservationRepo.GetByID(id)
-	if err != nil {
-		return entity.Reservation{}, errors.New("reservation not found")
-	}
+    existingReservation, err := uc.ReservationRepo.GetByID(id)
+    if err != nil {
+        return entity.Reservation{}, errors.New("reservation not found")
+    }
 
-	if updatedFields.SpaceID != "" && updatedFields.SpaceID != existingReservation.SpaceID {
-		_, err := uc.SpaceRepo.GetByID(updatedFields.SpaceID)
-		if err != nil {
-			return entity.Reservation{}, errors.New("space not found")
-		}
-		existingReservation.SpaceID = updatedFields.SpaceID
-	}
+    if updatedFields.SpaceID != "" && updatedFields.SpaceID != existingReservation.SpaceID {
+        space, err := uc.SpaceRepo.GetByID(updatedFields.SpaceID)
+        if err != nil {
+            return entity.Reservation{}, errors.New("space not found")
+        }
+        
+        existingReservation.SpaceID = updatedFields.SpaceID
+        
+        if !space.IsAvailable {
+            return entity.Reservation{}, errors.New("space is not available")
+        }
 
-	if updatedFields.UserID != "" && updatedFields.UserID != existingReservation.UserID {
-		_, err := uc.UserRepo.GetByID(updatedFields.UserID)
-		if err != nil {
-			return entity.Reservation{}, errors.New("user not found")
-		}
-		existingReservation.UserID = updatedFields.UserID
-	}
+        activeReservationsCount, err := uc.ReservationRepo.CountActiveBySpace(space.ID)
+        if err != nil {
+            return entity.Reservation{}, err
+        }
 
-	if !updatedFields.StartTime.IsZero() || !updatedFields.EndTime.IsZero() {
-		if updatedFields.StartTime.Before(updatedFields.EndTime) {
-			existingReservations, err := uc.ReservationRepo.GetBySpace(existingReservation.SpaceID)
-			if err != nil {
-				return entity.Reservation{}, errors.New("error checking existing reservations")
-			}
-			for _, res := range existingReservations {
-				if res.ID != id && updatedFields.StartTime.Before(res.EndTime) && updatedFields.EndTime.After(res.StartTime) {
-					return entity.Reservation{}, errors.New("time conflict with an existing reservation")
-				}
-			}
-			existingReservation.StartTime = updatedFields.StartTime
-			existingReservation.EndTime = updatedFields.EndTime
-		} else {
-			return entity.Reservation{}, errors.New("invalid time range")
-		}
-	}
+        if activeReservationsCount >= space.Capacity {
+            return entity.Reservation{}, errors.New("space capacity exceeded")
+        }
 
-	if updatedFields.Status != "" {
-		existingReservation.Status = updatedFields.Status
-	}
+        updatedSpace, err := uc.SpaceRepo.Update(space)
+        if err != nil {
+            return entity.Reservation{}, err
+        }
+        space = updatedSpace
+    }
 
-	existingReservation.UpdatedAt = time.Now()
+    if updatedFields.UserID != "" && updatedFields.UserID != existingReservation.UserID {
+        _, err := uc.UserRepo.GetByID(updatedFields.UserID)
+        if err != nil {
+            return entity.Reservation{}, errors.New("user not found")
+        }
+        existingReservation.UserID = updatedFields.UserID
+    }
 
-	updatedReservation, err := uc.ReservationRepo.Update(existingReservation)
-	if err != nil {
-		return entity.Reservation{}, err
-	}
+    if !updatedFields.StartTime.IsZero() || !updatedFields.EndTime.IsZero() {
+        if updatedFields.StartTime.Before(updatedFields.EndTime) {
+            existingReservations, err := uc.ReservationRepo.GetBySpace(existingReservation.SpaceID)
+            if err != nil {
+                return entity.Reservation{}, errors.New("error checking existing reservations")
+            }
+            for _, res := range existingReservations {
+                if res.ID != id && updatedFields.StartTime.Before(res.EndTime) && updatedFields.EndTime.After(res.StartTime) {
+                    return entity.Reservation{}, errors.New("time conflict with an existing reservation")
+                }
+            }
+            existingReservation.StartTime = updatedFields.StartTime
+            existingReservation.EndTime = updatedFields.EndTime
+        } else {
+            return entity.Reservation{}, errors.New("invalid time range")
+        }
+    }
 
-	return updatedReservation, nil
+    if updatedFields.Status != "" {
+        existingReservation.Status = updatedFields.Status
+    }
+
+    existingReservation.UpdatedAt = time.Now()
+
+    updatedReservation, err := uc.ReservationRepo.Update(existingReservation)
+    if err != nil {
+        return entity.Reservation{}, err
+    }
+
+    return updatedReservation, nil
 }
-

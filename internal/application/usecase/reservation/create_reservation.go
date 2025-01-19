@@ -31,6 +31,15 @@ func (uc *CreateReservationUseCase) Execute(reservation entity.Reservation) (ent
 		return entity.Reservation{}, errors.New("space is not available")
 	}
 
+	activeReservations, err := uc.ReservationRepo.CountActiveBySpace(reservation.SpaceID)
+	if err != nil {
+		return entity.Reservation{}, errors.New("error checking existing reservations")
+	}
+
+	if activeReservations >= space.Capacity {
+		return entity.Reservation{}, errors.New("space has reached its maximum capacity")
+	}
+
 	_, err = uc.UserRepo.GetByID(reservation.UserID)
 	if err != nil {
 		return entity.Reservation{}, errors.New("user not found")
@@ -57,6 +66,12 @@ func (uc *CreateReservationUseCase) Execute(reservation entity.Reservation) (ent
 	createdReservation, err := uc.ReservationRepo.Create(reservation)
 	if err != nil {
 		return entity.Reservation{}, err
+	}
+
+	space.Capacity -= 1
+	_, err = uc.SpaceRepo.Update(space)
+	if err != nil {
+		return entity.Reservation{}, errors.New("error updating space capacity")
 	}
 
 	return createdReservation, nil

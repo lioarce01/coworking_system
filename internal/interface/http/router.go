@@ -1,6 +1,7 @@
 package http
 
 import (
+	"cowork_system/internal/application/usecase/reservation"
 	"cowork_system/internal/application/usecase/space"
 	"cowork_system/internal/application/usecase/user"
 	"cowork_system/internal/infrastructure/database"
@@ -21,6 +22,7 @@ func SetupRouter() *gin.Engine {
 	//create repositories of each entity
 	spaceRepo := repository.NewGormSpaceRepository(db)
 	userRepo := repository.NewGormUserRepository(db)
+	reservationRepo := repository.NewGormReservationRepository(db)
 
 	//create use cases for spaces
 	listSpacesUseCase := space.NewListSpacesUseCase(spaceRepo)
@@ -36,6 +38,15 @@ func SetupRouter() *gin.Engine {
 	updateUserUseCase := user.NewUpdateUserUseCase(userRepo)
 	deleteUserUseCase := user.NewDeleteUserUseCase(userRepo)
 	changeRoleUseCase := user.NewChangeRoleUseCase(userRepo)
+
+	//create use cases for reservation
+	getReservationsUseCase := reservation.NewGetReservationsUseCase(reservationRepo)
+	getReservationUseCase := reservation.NewGetReservationUseCase(reservationRepo)
+	getSpaceReservationsUseCase := reservation.NewGetSpaceReservationsUseCase(reservationRepo)
+	getUserReservationsUseCase := reservation.NewGetUserReservationsUseCase(reservationRepo)
+	createReservationUseCase := reservation.NewCreateReservationUseCase(reservationRepo, spaceRepo, userRepo)
+	updateReservationUseCase := reservation.NewUpdateReservationUseCase(userRepo, spaceRepo, reservationRepo)
+	deleteReservationUseCase := reservation.NewDeleteReservationUseCase(reservationRepo)
 
 	//create handler for spaces
 	spaceHandler := handler.NewSpaceHandler(
@@ -54,6 +65,17 @@ func SetupRouter() *gin.Engine {
 		updateUserUseCase,
 		deleteUserUseCase,
 		changeRoleUseCase,
+	)
+
+	//create handler for reservations
+	reservationHandler := handler.NewReservationHandler(
+		createReservationUseCase,
+		getReservationsUseCase,
+		getReservationUseCase,
+		getSpaceReservationsUseCase,
+		getUserReservationsUseCase,
+		updateReservationUseCase,
+		deleteReservationUseCase,
 	)
 
 	//create routes for spaces
@@ -75,6 +97,17 @@ func SetupRouter() *gin.Engine {
 		usersRoutes.PUT("/:id", userHandler.UpdateUser)
 		usersRoutes.DELETE("/:id", userHandler.DeleteUser)
 		usersRoutes.PUT("/role", userHandler.ChangeRole)
+	}
+
+	reservationRoutes := r.Group("/reservations")
+	{
+		reservationRoutes.GET("/", reservationHandler.GetReservations)
+		reservationRoutes.POST("/", reservationHandler.CreateReservation)
+		reservationRoutes.GET("/:id", reservationHandler.GetReservation)
+		reservationRoutes.GET("/space/:id", reservationHandler.GetSpaceReservations)
+		reservationRoutes.GET("/user/:id", reservationHandler.GetUserReservations)
+		reservationRoutes.PUT("/:id", reservationHandler.UpdateReservation)
+		reservationRoutes.DELETE("/:id", reservationHandler.DeleteReservation)
 	}
 
 	return r

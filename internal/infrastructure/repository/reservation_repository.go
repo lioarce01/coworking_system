@@ -16,12 +16,20 @@ func NewGormReservationRepository(db *gorm.DB) ports.ReservationRepository {
 }
 
 func (r *GormReservationRepository) Create(reservation entity.Reservation) (entity.Reservation, error) {
-	result := r.DB.Create(&reservation)
-	if result.Error != nil {
-		return entity.Reservation{}, result.Error
-	}
-	return reservation, nil
+    result := r.DB.Create(&reservation)
+    if result.Error != nil {
+        return entity.Reservation{}, result.Error
+    }
+
+    var reservationWithDetails entity.Reservation
+    result = r.DB.Preload("Space").Preload("User").First(&reservationWithDetails, "id = ?", reservation.ID)
+    if result.Error != nil {
+        return entity.Reservation{}, result.Error
+    }
+
+    return reservationWithDetails, nil
 }
+
 
 func (r *GormReservationRepository) Update(reservation entity.Reservation) (entity.Reservation, error) {
 	result := r.DB.Updates(&reservation)
@@ -51,7 +59,7 @@ func (r *GormReservationRepository) GetAll() ([]entity.Reservation, error) {
 
 func (r *GormReservationRepository) GetByID(id string) (entity.Reservation, error) {
 	var reservation entity.Reservation
-	result := r.DB.Where("id = ?", id).First(&reservation)
+	result := r.DB.Where("id = ?", id).Preload("Space").Preload("User").First(&reservation)
 	if result.Error != nil {
 		return entity.Reservation{}, result.Error
 	}
@@ -60,7 +68,7 @@ func (r *GormReservationRepository) GetByID(id string) (entity.Reservation, erro
 
 func (r *GormReservationRepository) GetBySpace(id string) ([]entity.Reservation, error) {
 	var reservations []entity.Reservation
-	result := r.DB.Where("space_id = ?", id).Find(&reservations)
+	result := r.DB.Where("space_id = ?", id).Preload("Space").Preload("User").Find(&reservations)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -69,7 +77,7 @@ func (r *GormReservationRepository) GetBySpace(id string) ([]entity.Reservation,
 
 func (r *GormReservationRepository) GetByUser(id string) ([]entity.Reservation, error) {
 	var reservations []entity.Reservation
-	result := r.DB.Where("user_id = ?", id).Find(&reservations)
+	result := r.DB.Where("user_id = ?", id).Preload("Space").Preload("User").Find(&reservations)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -77,3 +85,12 @@ func (r *GormReservationRepository) GetByUser(id string) ([]entity.Reservation, 
 	return reservations, nil
 }
 
+func (r *GormReservationRepository) CountActiveBySpace(spaceID string) (int, error) {
+    var count int64
+    result := r.DB.Model(&entity.Reservation{}).
+        Where("space_id = ? AND status = ?", spaceID, entity.Confirmed).Count(&count)
+    if result.Error != nil {
+        return 0, result.Error
+    }
+    return int(count), nil
+}

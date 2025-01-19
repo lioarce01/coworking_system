@@ -28,7 +28,7 @@ func NewDBConnection() (*gorm.DB, error) {
 		return nil, fmt.Errorf("error connecting to database: %v", err)
 	}
 
-	err = db.AutoMigrate(&entity.Space{})
+	err = db.AutoMigrate(&entity.Space{}, &entity.User{}, &entity.Reservation{})
 	if err != nil {
 		return nil, fmt.Errorf("error migrating database: %v", err)
 	}

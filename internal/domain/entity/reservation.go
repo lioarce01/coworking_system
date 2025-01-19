@@ -5,9 +5,9 @@ import "time"
 type Reservation struct {
 	ID         string      `json:"id" gorm:"type:uuid;primaryKey"`
 	SpaceID    string      `json:"space_id"`
-	Space      Space     `json:"space,omitempty"` 
+	Space      Space     `json:"space" gorm:"foreignKey:SpaceID"`
 	UserID     string      `json:"user_id"`
-	User       User      `json:"user,omitempty"` 
+	User       User      `json:"user" gorm:"foreignKey:UserID"`
 	StartTime time.Time `json:"start_time"`
 	EndTime   time.Time `json:"end_time"`
 	Status Status `json:"status" gorm:"default:'pending'"`
