@@ -67,3 +67,8 @@ func (r *GormUserRepository) Delete(id string) error {
 	}
 	return nil
 }
+
+func (r *GormUserRepository) ChangeRole(id string, newRole entity.Role) error {
+	result := r.DB.Model(&entity.User{}).Where("id = ?",id).Update("role", newRole)
+	return result.Error
+}

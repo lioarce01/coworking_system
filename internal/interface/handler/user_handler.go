@@ -14,6 +14,7 @@ type UserHandler struct {
 	GetUserUseCase *user.GetUserUseCase
 	UpdateUserUseCase *user.UpdateUserUseCase
 	DeleteUserUseCase *user.DeleteUserUseCase
+	ChangeRoleUseCase *user.ChangeRoleUseCase
 }
 
 func NewUserHandler(
@@ -22,6 +23,7 @@ func NewUserHandler(
 	getUserUseCase *user.GetUserUseCase,
 	updateUserUseCase *user.UpdateUserUseCase,
 	deleteUserUseCase *user.DeleteUserUseCase,
+	changeRoleUseCase *user.ChangeRoleUseCase,
 ) *UserHandler {
 	return &UserHandler{
 		CreateUserUseCase: createUserUseCase,
@@ -29,6 +31,7 @@ func NewUserHandler(
 		GetUserUseCase:     getUserUseCase,
 		UpdateUserUseCase:  updateUserUseCase,
 		DeleteUserUseCase:  deleteUserUseCase,
+		ChangeRoleUseCase: changeRoleUseCase,
 	}
 }
 
@@ -100,5 +103,31 @@ func (h *UserHandler) DeleteUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "User deleted successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "user deleted successfully"})
+}
+
+func (h *UserHandler) ChangeRole(c *gin.Context) {
+	var body struct {
+		AdminID string `json:"admin_id"`
+		TargetID string `json:"target_id"`
+		NewRole string `json:"new_role"`
+	}
+
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if body.AdminID == "" || body.TargetID == "" || body.NewRole == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "all fields are required"})
+		return
+	}
+
+	newRole := entity.Role(body.NewRole)
+
+	if err := h.ChangeRoleUseCase.Execute(body.AdminID,body.TargetID,newRole); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "role updated successfully"})
 }

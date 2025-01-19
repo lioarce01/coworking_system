@@ -10,7 +10,7 @@ type User struct {
 	Phone     string    `json:"phone"`
 	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
 	UpdatedAt time.Time `json:"updated_at" gorm:"autoCreateTime"`
-	Role      string    `json:"role" gorm:"default:'user'"`
+	Role      Role    `json:"role" gorm:"default:'normal'"`
 
 	Reservations []Reservation `json:"reservations,omitempty"` 
 }
@@ -19,7 +19,7 @@ type Role string
 
 const (
 	Admin Role = "admin"
-	Normal Role = "user"
+	Normal Role = "normal"
 )
 
 func (s Role) IsValid() bool {

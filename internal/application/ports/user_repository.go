@@ -8,4 +8,5 @@ type UserRepository interface {
 	Create(user entity.User) (entity.User, error)
 	Update(user entity.User) (entity.User, error)
 	Delete(id string) error
+	ChangeRole(targetID string, newRole entity.Role) error
 }

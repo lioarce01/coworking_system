@@ -35,6 +35,7 @@ func SetupRouter() *gin.Engine {
 	createUserUseCase := user.NewCreateUserUseCase(userRepo)
 	updateUserUseCase := user.NewUpdateUserUseCase(userRepo)
 	deleteUserUseCase := user.NewDeleteUserUseCase(userRepo)
+	changeRoleUseCase := user.NewChangeRoleUseCase(userRepo)
 
 	//create handler for spaces
 	spaceHandler := handler.NewSpaceHandler(
@@ -52,6 +53,7 @@ func SetupRouter() *gin.Engine {
 		getUserUseCase,
 		updateUserUseCase,
 		deleteUserUseCase,
+		changeRoleUseCase,
 	)
 
 	//create routes for spaces
@@ -65,13 +67,14 @@ func SetupRouter() *gin.Engine {
 	}
 
 	//create routes for users
-	spacesRoutes := r.Group("/users")
+	usersRoutes := r.Group("/users")
 	{
-		spacesRoutes.GET("/", userHandler.GetUsers)
-		spacesRoutes.POST("/", userHandler.CreateUser)
-		spacesRoutes.GET("/:id", userHandler.GetUser)
-		spacesRoutes.PUT("/:id", userHandler.UpdateUser)
-		spacesRoutes.DELETE("/:id", userHandler.DeleteUser)
+		usersRoutes.GET("/", userHandler.GetUsers)
+		usersRoutes.POST("/", userHandler.CreateUser)
+		usersRoutes.GET("/:id", userHandler.GetUser)
+		usersRoutes.PUT("/:id", userHandler.UpdateUser)
+		usersRoutes.DELETE("/:id", userHandler.DeleteUser)
+		usersRoutes.PUT("/role", userHandler.ChangeRole)
 	}
 
 	return r
