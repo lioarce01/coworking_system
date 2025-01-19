@@ -10,7 +10,7 @@ type UpdateUserUseCase struct {
 	UserRepo ports.UserRepository
 }
 
-func NewUpdateSpaceUseCase(repo ports.UserRepository) *UpdateUserUseCase {
+func NewUpdateUserUseCase(repo ports.UserRepository) *UpdateUserUseCase {
 	return &UpdateUserUseCase{UserRepo: repo}
 }
 

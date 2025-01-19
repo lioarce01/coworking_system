@@ -9,7 +9,7 @@ type DeleteUserUseCase struct {
 	UserRepo ports.UserRepository
 }
 
-func NewDeleteSpaceUseCase(repo ports.UserRepository) *DeleteUserUseCase {
+func NewDeleteUserUseCase(repo ports.UserRepository) *DeleteUserUseCase {
 	return &DeleteUserUseCase{UserRepo: repo}
 }
 
