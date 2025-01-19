@@ -12,6 +12,8 @@ type Space struct {
 	Location    string    `json:"location"`
 	CreatedAt   time.Time `json:"created_at" gorm:"autoCreateTime"`
 	UpdatedAt   time.Time `json:"updated_at" gorm:"autoUpdateTime"`
+
+	Reservations []Reservation `json:"reservations,omitempty" gorm:"foreignKey:SpaceID"` 
 	// OwnerID uint `json:"owner_id"`
 	// Owner *User `json:"owner,omitempty"`
 }

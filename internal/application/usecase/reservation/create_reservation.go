@@ -22,9 +22,13 @@ func NewCreateReservationUseCase(reservationRepo ports.ReservationRepository, sp
 }
 
 func (uc *CreateReservationUseCase) Execute(reservation entity.Reservation) (entity.Reservation, error) {
-	_, err := uc.SpaceRepo.GetByID(reservation.SpaceID)
+	space, err := uc.SpaceRepo.GetByID(reservation.SpaceID)
 	if err != nil {
 		return entity.Reservation{}, errors.New("space not found")
+	}
+
+	if !space.IsAvailable {
+		return entity.Reservation{}, errors.New("space is not available")
 	}
 
 	_, err = uc.UserRepo.GetByID(reservation.UserID)

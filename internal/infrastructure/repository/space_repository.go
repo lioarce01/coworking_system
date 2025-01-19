@@ -3,6 +3,7 @@ package repository
 import (
 	"cowork_system/internal/application/ports"
 	"cowork_system/internal/domain/entity"
+	"errors"
 
 	"gorm.io/gorm"
 )
@@ -60,7 +61,7 @@ func (r *GormSpaceRepository) Update(space entity.Space) (entity.Space, error) {
 
 func (r *GormSpaceRepository) ListAvailableSpaces() ([]entity.Space, error) {
 	var spaces []entity.Space
-	result := r.DB.Find(&spaces)
+	result := r.DB.Where("is_available = ?", true).Find(&spaces)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -68,9 +69,33 @@ func (r *GormSpaceRepository) ListAvailableSpaces() ([]entity.Space, error) {
 }
 
 func (r *GormSpaceRepository) Create(space entity.Space) (entity.Space, error) {
+	if space.Capacity <= 0 {
+		return entity.Space{}, errors.New("capacity must be greater than 0")
+	}
 	result := r.DB.Create(&space)
 	if result.Error != nil {
 		return entity.Space{}, result.Error
 	}
 	return space, nil
+}
+
+func (r *GormSpaceRepository) CountActiveReservations(spaceID string) (int, error) {
+	var count int64
+	result := r.DB.Model(&entity.Reservation{}).
+		Where("space_id = ? AND status = ?", spaceID, entity.Confirmed).
+		Count(&count)
+	if result.Error != nil {
+		return 0, result.Error
+	}
+	return int(count), nil
+}
+
+func (r *GormSpaceRepository) SetAvailability(spaceID string, isAvailable bool) error {
+	result := r.DB.Model(&entity.Space{}).
+		Where("id = ?", spaceID).
+		Update("is_available", isAvailable)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
 }
