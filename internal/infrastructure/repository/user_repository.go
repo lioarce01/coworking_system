@@ -47,12 +47,12 @@ func (r *GormUserRepository) Update(user entity.User) (entity.User, error) {
 		return entity.User{}, err
 	}
 
-	existingUser.Name = user.Name
-	existingUser.Email = user.Email
-	existingUser.Password = user.Password
-	existingUser.Phone = user.Phone
-
-	result := r.DB.Save(&existingUser)
+	result := r.DB.Model(&existingUser).Updates(entity.User{
+	Name: user.Name,
+	Email: user.Email,
+	Password: user.Password,
+	Phone: user.Phone,
+	})
 	if result.Error != nil {
 		return entity.User{}, result.Error
 	}

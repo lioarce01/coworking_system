@@ -41,20 +41,21 @@ func (r *GormSpaceRepository) Update(space entity.Space) (entity.Space, error) {
         return entity.Space{}, err 
     }
 
-    existingSpace.Name = space.Name
-    existingSpace.Description = space.Description
-    existingSpace.Capacity = space.Capacity
-    existingSpace.IsAvailable = space.IsAvailable
-    existingSpace.Price = space.Price
-    existingSpace.Location = space.Location
-
-    result := r.DB.Save(&existingSpace)
+    result := r.DB.Model(&existingSpace).Updates(entity.Space{
+        Name:        space.Name,
+        Description: space.Description,
+        Capacity:    space.Capacity,
+        IsAvailable: space.IsAvailable,
+        Price:       space.Price,
+        Location:    space.Location,
+    })
     if result.Error != nil {
         return entity.Space{}, result.Error
     }
 
     return existingSpace, nil
 }
+
 
 
 func (r *GormSpaceRepository) ListAvailableSpaces() ([]entity.Space, error) {
