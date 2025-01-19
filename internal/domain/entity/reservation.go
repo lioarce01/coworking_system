@@ -3,10 +3,32 @@ package entity
 import "time"
 
 type Reservation struct {
-	ID         uint      `json:"id" gorm:"primaryKey"`
-	SpaceID    uint      `json:"space_id"`
+	ID         string      `json:"id" gorm:"type:uuid;primaryKey"`
+	SpaceID    string      `json:"space_id"`
 	Space      Space     `json:"space,omitempty"` 
-	UserID     uint      `json:"user_id"`
+	UserID     string      `json:"user_id"`
 	User       User      `json:"user,omitempty"` 
-	ReservedAt time.Time `json:"reserved_at"`
+	StartTime time.Time `json:"start_time"`
+	EndTime   time.Time `json:"end_time"`
+	Status Status `json:"status" gorm:"default:'pending'"`
+}
+
+type Status string
+
+const (
+	Pending   Status = "pending"
+	Confirmed Status = "confirmed"
+	Cancelled Status = "cancelled"
+)
+
+func (s Status) IsValid() bool {
+	switch s {
+	case Pending, Confirmed, Cancelled:
+		return true
+	}
+	return false
+}
+
+func (s Status) String() string {
+	return string(s)
 }
