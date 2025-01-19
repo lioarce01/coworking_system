@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 type SpaceHandler struct {
@@ -87,11 +86,6 @@ func (h *SpaceHandler) DeleteSpace(c *gin.Context) {
     id := c.Param("id") 
     if id == "" {
         c.JSON(http.StatusBadRequest, gin.H{"error": "ID is required"})
-        return
-    }
-
-    if _, err := uuid.Parse(id); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid UUID format"})
         return
     }
 
