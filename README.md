@@ -1,1 +1,1 @@
-![CI](https://github.com/lioarce01/realtime-chat-app/actions/workflows/go.yml/badge.svg)
+![CI/CD Pipelines](https://github.com/lioarce01/realtime-chat-app/actions/workflows/go.yml/badge.svg)
