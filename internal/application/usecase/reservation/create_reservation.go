@@ -31,27 +31,22 @@ func (uc *CreateReservationUseCase) Execute(spaceID string, userID string, start
 		return entity.Reservation{}, errors.New("invalid time range")
 	}
 
-	existingReservations, err := uc.ReservationRepo.GetBySpaceAndTime(spaceID, startTime, endTime)
+	activeReservationsCount, err := uc.ReservationRepo.CountActiveBySpace(spaceID)
 	if err != nil {
-		return entity.Reservation{}, errors.New("error fetching existing reservations")
+		return entity.Reservation{}, errors.New("error fetching active reservations")
 	}
 
-	totalReserved := 0
-	for _, res := range existingReservations {
-		totalReserved += res.NumPersons
-	}
-
-	if totalReserved+numPersons > space.Capacity {
-		return entity.Reservation{}, errors.New("not enough capacity for this space at the selected time")
+	if activeReservationsCount+numPersons > space.Capacity {
+		return entity.Reservation{}, errors.New("space is fully booked at the selected time")
 	}
 
 	reservation := entity.Reservation{
-		SpaceID:   spaceID,
-		UserID:    userID,
-		StartTime: startTime,
-		EndTime:   endTime,
-		Status:    entity.Pending,
+		SpaceID:    spaceID,
+		UserID:     userID,
+		StartTime:  startTime,
+		EndTime:    endTime,
 		NumPersons: numPersons,
+		Status:     entity.Confirmed,
 	}
 
 	createdReservation, err := uc.ReservationRepo.Create(reservation)
@@ -59,15 +54,12 @@ func (uc *CreateReservationUseCase) Execute(spaceID string, userID string, start
 		return entity.Reservation{}, err
 	}
 
-	space.Capacity -= numPersons
+	totalActiveReservations := activeReservationsCount + numPersons
+	isAvailable := totalActiveReservations < space.Capacity
 
-	if totalReserved+numPersons >= space.Capacity {
-		space.IsAvailable = false
+	if err := uc.SpaceRepo.SetAvailability(spaceID, isAvailable); err != nil {
+		return entity.Reservation{}, errors.New("error updating space availability")
 	}
-
-    if _, err := uc.SpaceRepo.Update(space); err != nil {
-        return entity.Reservation{}, err
-    }
 
 	return createdReservation, nil
 }

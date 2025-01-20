@@ -7,7 +7,7 @@ import (
 
 type ReservationRepository interface {
 	GetAll() ([]entity.Reservation, error)
-	GetByID(id string) (entity.Reservation, error)
+	GetByID(id string) (*entity.Reservation, error)
 	GetByUser(id string) ([]entity.Reservation, error)
 	GetBySpace(id string) ([]entity.Reservation, error)
 	Create(reservation entity.Reservation) (entity.Reservation, error)

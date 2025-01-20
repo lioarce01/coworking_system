@@ -14,13 +14,13 @@ func NewGetSpaceUseCase(repo ports.SpaceRepository) *GetSpaceUseCase {
 	return &GetSpaceUseCase{SpaceRepo: repo}
 }
 
-func (uc *GetSpaceUseCase) Execute(id string) (entity.Space, error) {
+func (uc *GetSpaceUseCase) Execute(id string) (*entity.Space, error) {
 	space, err := uc.SpaceRepo.GetByID(id)
 	if err != nil {
-		return entity.Space{}, err
+		return nil, err
 	}
 	if space.ID == "" {
-		return entity.Space{}, errors.New("space not found")
+		return nil, errors.New("space not found")
 	}
 	return space, nil
 }

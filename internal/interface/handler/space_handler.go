@@ -74,7 +74,7 @@ func (h *SpaceHandler) UpdateSpace(c *gin.Context) {
         c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
-    updatedSpace, err := h.UpdateSpaceUseCase.Execute(id, space)
+    updatedSpace, err := h.UpdateSpaceUseCase.Execute(id, &space)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return

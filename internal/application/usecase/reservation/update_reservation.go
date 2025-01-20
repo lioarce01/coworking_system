@@ -87,7 +87,7 @@ func (uc *UpdateReservationUseCase) Execute(id string, updatedFields entity.Rese
 
     existingReservation.UpdatedAt = time.Now()
 
-    updatedReservation, err := uc.ReservationRepo.Update(existingReservation)
+    updatedReservation, err := uc.ReservationRepo.Update(*existingReservation)
     if err != nil {
         return entity.Reservation{}, err
     }

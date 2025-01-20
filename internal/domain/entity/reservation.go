@@ -10,7 +10,7 @@ type Reservation struct {
 	User       User      `json:"user" gorm:"foreignKey:UserID"`
 	StartTime time.Time `json:"start_time"`
 	EndTime   time.Time `json:"end_time"`
-	Status Status `json:"status" gorm:"default:'pending'"`
+	Status Status `json:"status" gorm:"default:'confirmed'"`
 	NumPersons int `json:"num_persons"`
 	CreatedAt   time.Time `json:"created_at" gorm:"autoCreateTime"`
 	UpdatedAt   time.Time `json:"updated_at" gorm:"autoUpdateTime"`
@@ -19,14 +19,13 @@ type Reservation struct {
 type Status string
 
 const (
-	Pending   Status = "pending"
 	Confirmed Status = "confirmed"
 	Cancelled Status = "cancelled"
 )
 
 func (s Status) IsValid() bool {
 	switch s {
-	case Pending, Confirmed, Cancelled:
+	case Confirmed, Cancelled:
 		return true
 	}
 	return false

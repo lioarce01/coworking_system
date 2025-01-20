@@ -26,25 +26,22 @@ func (r *GormSpaceRepository) Delete(id string) error {
     return nil
 }
 
-func (r *GormSpaceRepository) GetByID(id string) (entity.Space, error) {
-	var space entity.Space
-	result := r.DB.
-		Preload("Reservations.User").
-		Preload("Reservations.Space").
-		Where("id = ?", id).
-		First(&space)
+func (r *GormSpaceRepository) GetByID(id string) (*entity.Space, error) {
+    var space entity.Space
+    result := r.DB.Preload("Reservations.User").Preload("Reservations.Space").
+        Where("id = ?", id).First(&space)
 
-	if result.Error != nil {
-		return entity.Space{}, result.Error
-	}
+    if result.Error != nil {
+        return nil, result.Error
+    }
 
-	return space, nil
+    return &space, nil
 }
 
-func (r *GormSpaceRepository) Update(space entity.Space) (entity.Space, error) {
+func (r *GormSpaceRepository) Update(space *entity.Space) (*entity.Space, error) {
     existingSpace, err := r.GetByID(space.ID)
     if err != nil {
-        return entity.Space{}, err
+        return nil, err
     }
 	
     result := r.DB.Model(&existingSpace).Updates(entity.Space{
@@ -56,7 +53,7 @@ func (r *GormSpaceRepository) Update(space entity.Space) (entity.Space, error) {
         Location:    space.Location,
     })
     if result.Error != nil {
-        return entity.Space{}, result.Error
+        return nil, result.Error
     }
 
     return existingSpace, nil

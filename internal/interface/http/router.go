@@ -46,7 +46,7 @@ func SetupRouter() *gin.Engine {
 	getUserReservationsUseCase := reservation.NewGetUserReservationsUseCase(reservationRepo)
 	createReservationUseCase := reservation.NewCreateReservationUseCase(reservationRepo, spaceRepo, userRepo)
 	updateReservationUseCase := reservation.NewUpdateReservationUseCase(userRepo, spaceRepo, reservationRepo)
-	deleteReservationUseCase := reservation.NewDeleteReservationUseCase(reservationRepo)
+	deleteReservationUseCase := reservation.NewDeleteReservationUseCase(reservationRepo, spaceRepo)
 
 	//create handler for spaces
 	spaceHandler := handler.NewSpaceHandler(

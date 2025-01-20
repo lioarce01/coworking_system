@@ -120,17 +120,13 @@ func (h *ReservationHandler) UpdateReservation(c *gin.Context) {
 }
 
 func (h *ReservationHandler) DeleteReservation(c *gin.Context) {
-	id := c.Param("id")
-	if id == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required"})
-		return
-	}
+    reservationID := c.Param("id")
 
-	err := h.DeleteReservationUseCase.Execute(id)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
+    err := h.DeleteReservationUseCase.Execute(reservationID)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
 
-	c.JSON(http.StatusOK, gin.H{"message": "reservation deleted successfully"})
+    c.JSON(http.StatusOK, gin.H{"message": "reservation deleted successfully"})
 }

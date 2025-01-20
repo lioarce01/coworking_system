@@ -63,13 +63,15 @@ func (r *GormReservationRepository) GetAll() ([]entity.Reservation, error) {
 	return reservations, nil
 }
 
-func (r *GormReservationRepository) GetByID(id string) (entity.Reservation, error) {
-	var reservation entity.Reservation
-	result := r.DB.Where("id = ?", id).Preload("Space").Preload("User").First(&reservation)
-	if result.Error != nil {
-		return entity.Reservation{}, result.Error
-	}
-	return reservation, nil
+func (r *GormReservationRepository) GetByID(id string) (*entity.Reservation, error) {
+    var reservation entity.Reservation
+    result := r.DB.Preload("Space").Preload("User").Where("id = ?", id).First(&reservation)
+
+    if result.Error != nil {
+        return nil, result.Error
+    }
+
+    return &reservation, nil
 }
 
 func (r *GormReservationRepository) GetBySpace(id string) ([]entity.Reservation, error) {

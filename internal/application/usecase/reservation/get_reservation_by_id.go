@@ -14,14 +14,14 @@ func NewGetReservationUseCase(repo ports.ReservationRepository) *GetReservationU
 	return &GetReservationUseCase{ReservationRepo: repo}
 }
 
-func (uc *GetReservationUseCase) Execute(id string) (entity.Reservation, error) {
+func (uc *GetReservationUseCase) Execute(id string) (*entity.Reservation, error) {
 	reservation, err := uc.ReservationRepo.GetByID(id)
 	if err != nil {
-		return entity.Reservation{}, err
+		return nil, err
 	}
 
 	if reservation.ID == "" {
-		return entity.Reservation{}, errors.New("reservation not found")
+		return nil, errors.New("reservation not found")
 	}
 
 	return reservation, nil
